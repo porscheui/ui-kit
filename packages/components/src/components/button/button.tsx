@@ -26,6 +26,7 @@ import { getButtonAriaAttributes } from './button-utils';
 import type { ButtonIcon } from './button-utils';
 import { getComponentCss } from './button-styles';
 import { loadingId, LoadingMessage } from '../common/loading-message/loading-message';
+import { type ILoadingComponent, LoadingComponent } from '../../abstract-components';
 
 const propTypes: PropTypes<typeof Button> = {
   type: AllowedTypes.oneOf<ButtonType>(BUTTON_TYPES),
@@ -45,7 +46,7 @@ const propTypes: PropTypes<typeof Button> = {
   tag: 'p-button',
   shadow: { delegatesFocus: true },
 })
-export class Button {
+export class Button implements ILoadingComponent {
   @Element() public host!: HTMLElement;
 
   /** Specifies the type of the button. */
@@ -81,7 +82,11 @@ export class Button {
   /** Add ARIA attributes. */
   @Prop() public aria?: SelectedAriaAttributes<ButtonAriaAttribute>;
 
-  private initialLoading: boolean = false;
+  private base: LoadingComponent;
+
+  constructor() {
+    this.base = new LoadingComponent(this);
+  }
 
   @Listen('click', { capture: true })
   public onClick(e: MouseEvent): void {
@@ -92,18 +97,15 @@ export class Button {
 
   @Watch('loading')
   public loadingChanged(newVal: boolean): void {
-    if (newVal) {
-      // don't reset initialLoading to false
-      this.initialLoading = newVal;
-    }
+    this.base.onLoadingChange(newVal);
   }
 
   public connectedCallback(): void {
-    this.initialLoading = this.loading;
+    this.base.connectedCallback();
   }
 
   public componentWillLoad(): void {
-    this.initialLoading = this.loading;
+    this.base.componentWillLoad();
   }
 
   public componentShouldUpdate(newVal: unknown, oldVal: unknown): boolean {
@@ -134,37 +136,40 @@ export class Button {
       this.theme
     );
 
+    const iconProps = {
+      size: 'inherit',
+      theme: this.theme,
+      'aria-hidden': 'true',
+    };
+
     const PrefixedTagNames = getPrefixedTagNames(this.host);
 
     return (
       <Host>
         <button
-          {...getButtonAriaAttributes(this.disabled, this.loading, this.aria)}
           class="root"
           type={this.type}
           name={this.name}
           value={this.value}
+          {...getButtonAriaAttributes(this.disabled, this.loading, this.aria)}
           aria-describedby={this.loading ? loadingId : undefined}
         >
-          {this.loading && (
-            <PrefixedTagNames.pSpinner class="spinner" size="inherit" theme={this.theme} aria-hidden="true" />
-          )}
+          {/* TODO: different from p-button-pure where there is no conditional rendering */}
+          {this.loading && <PrefixedTagNames.pSpinner class="spinner" {...iconProps} />}
           {hasVisibleIcon(this.icon, this.iconSource) && (
             <PrefixedTagNames.pIcon
               class="icon"
-              size="inherit"
+              {...iconProps}
               name={this.iconSource ? undefined : this.icon}
               source={this.iconSource}
               color={this.disabled ? (this.variant === 'primary' ? 'contrast-high' : 'state-disabled') : 'primary'}
-              theme={this.theme}
-              aria-hidden="true"
             />
           )}
           <span class="label">
             <slot />
           </span>
         </button>
-        <LoadingMessage loading={this.loading} initialLoading={this.initialLoading} />
+        <LoadingMessage loading={this.loading} initialLoading={this.base.initialLoading} />
       </Host>
     );
   }
