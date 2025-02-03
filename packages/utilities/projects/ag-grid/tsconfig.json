@@ -1,0 +1,8 @@
+{
+  "extends": "@porsche-design-system/shared/tsconfig.json",
+  "compilerOptions": {
+    "types": ["node", "jest"],
+    "verbatimModuleSyntax": false
+  },
+  "include": ["**/*.ts"]
+}

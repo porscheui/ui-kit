@@ -1,5 +1,6 @@
 @use '../../../utilities/dist' as *;
 @use 'ag-grid-community/styles' as ag;
+'@porsche-design-system/components-{js|angular|react|vue}/styles'
 
 $pds-icon-dark-mode-filter: var(
   --p-internal-icon-filter,
