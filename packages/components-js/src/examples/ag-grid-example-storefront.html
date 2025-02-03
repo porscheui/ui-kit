@@ -55,6 +55,7 @@
   ];
 
   const gridOptions = {
+    // theme: 'legacy', // Forces AG Grid to use v32 styling
     // Data to be displayed
     rowData: rowData.map((row, index) => ({ active: Boolean(index % 2) /* odd rows */, ...row })),
     // Columns to be displayed (Should match rowData properties)
@@ -104,6 +105,7 @@
     // Grid Options & Callbacks
     pagination: true,
   };
+
 
   agGrid.createGrid(grid, gridOptions);
 </script>

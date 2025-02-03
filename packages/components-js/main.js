@@ -4,6 +4,19 @@ import { componentsReady } from '@porsche-design-system/components-js';
 
 import { dataAdvanced } from '@porsche-design-system/shared';
 import * as agGrid from 'ag-grid-enterprise';
+import {
+  CellSelectionModule,
+  CheckboxEditorModule,
+  ClientSideRowModelModule,
+  ColumnsToolPanelModule,
+  FiltersToolPanelModule,
+  ModuleRegistry,
+  PaginationModule,
+  SideBarModule,
+  TextEditorModule,
+  ValidationModule,
+  provideGlobalGridOptions,
+} from 'ag-grid-enterprise';
 
 const getPage = () => window.location.pathname.substring(1);
 const getTheme = () => new URL(document.location).searchParams.get('theme') || 'light';
@@ -117,6 +130,24 @@ const updateSelect = (id, value) => {
       })
     );
   };
+
+  // Register the required module
+  ModuleRegistry.registerModules([
+    ClientSideRowModelModule,
+    ValidationModule,
+    PaginationModule,
+    SideBarModule,
+    CellSelectionModule,
+    ColumnsToolPanelModule,
+    FiltersToolPanelModule,
+    CheckboxEditorModule,
+    TextEditorModule,
+  ]);
+
+  // Mark all grids as using legacy themes
+  provideGlobalGridOptions({
+    theme: 'legacy',
+  });
 
   window.agGrid = agGrid;
   window.rowData = dataAdvanced;
