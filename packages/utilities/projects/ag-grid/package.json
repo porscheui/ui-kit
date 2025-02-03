@@ -14,8 +14,8 @@
     "clean:build": "rm -rf ./dist && rm -rf ./src/css"
   },
   "devDependencies": {
-    "ag-grid-community": "33.0.4",
-    "@porsche-design-system/shared": "0.0.0"
+    "@porsche-design-system/shared": "0.0.0",
+    "ag-grid-community": "33.0.4"
   },
   "peerDependencies": {
     "sass": "*"

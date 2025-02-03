@@ -2,7 +2,7 @@ import './style.scss';
 
 import { componentsReady } from '@porsche-design-system/components-js';
 
-import { pdsDarkTheme } from '@porsche-design-system/ag-grid/src/js/theme';
+import { pdsTheme } from '@porsche-design-system/ag-grid/src/js/theme';
 import { dataAdvanced } from '@porsche-design-system/shared';
 import * as agGrid from 'ag-grid-enterprise';
 import { AllEnterpriseModule, ModuleRegistry, ValidationModule, provideGlobalGridOptions } from 'ag-grid-enterprise';
@@ -125,7 +125,7 @@ const updateSelect = (id, value) => {
 
   // Mark all grids as using legacy themes
   provideGlobalGridOptions({
-    theme: pdsDarkTheme,
+    theme: pdsTheme,
   });
 
   window.agGrid = agGrid;

@@ -3,7 +3,9 @@
   const theme = new URL(document.location).searchParams.get('theme') || 'light';
   const grid = document.querySelector('#my-grid');
 
-  grid.classList.add(theme === 'light' ? 'ag-theme-pds' : 'ag-theme-pds-dark');
+  // grid.classList.add(theme === 'light' ? 'ag-theme-pds' : 'ag-theme-pds-dark');
+  grid.setAttribute('data-ag-theme-mode', theme === 'light' ? 'ag-theme-pds' : 'ag-theme-pds-dark');
+
 
   class ImageUrlRenderer {
     eGui;
@@ -137,7 +139,13 @@
     enableRangeSelection: true,
   };
 
-  agGrid.createGrid(grid, gridOptions);
+  const gridApi = agGrid.createGrid(grid, gridOptions);
+
+  function setDarkMode(enabled) {
+    document.body.dataset.agThemeMode = enabled ? "dark" : "light";
+  }
+
+  setDarkMode(true)
 </script>
 
 <div id="my-grid" style="height: 80vh; padding: 1rem"></div>
