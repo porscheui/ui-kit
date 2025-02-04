@@ -1,8 +1,12 @@
 import {
   borderRadiusMedium,
   borderRadiusSmall,
+  borderWidthBase,
   fontFamily,
   fontSizeTextSmall,
+  fontSizeTextXSmall,
+  fontWeightSemiBold,
+  spacingStaticXSmall,
   themeDarkBackgroundBase,
   themeDarkBackgroundFrosted,
   themeDarkBackgroundSurface,
@@ -30,6 +34,14 @@ import {
 } from '@porsche-design-system/components-js/styles';
 
 import { type Theme, createPart, iconOverrides, themeQuartz } from 'ag-grid-community';
+
+// TODO Hover color for Checkbox, Toggle Button etc. missing
+// TODO Radio button styles missing
+
+const enum PdsThemeMode {
+  LIGHT = 'ag-theme-pds',
+  DARK = 'ag-theme-pds-dark',
+}
 
 import type { IconName } from '@porsche-design-system/icons';
 import { buildIconUrl } from './icon-utils';
@@ -114,24 +126,86 @@ const agGridToPdsIconMap: Record<string, IconName> = {
   settings: 'configurate',
 };
 
-const pdsCssOverwriteStyle = createPart({ cssImports: ['../theme.css'] });
-
-const myCheckboxStyle = createPart({
-  // By setting the feature, adding this part to a theme will remove the
-  // theme's existing checkboxStyle, if any
-  feature: 'checkboxStyle',
-  params: {
-    // Declare parameters added by the custom CSS and provide default values
-    checkboxCheckedGlowColor: { ref: 'accentColor' },
-    checkboxGlowColor: { ref: 'foregroundColor', mix: 0.5 },
-    // If you want to provide new default values for parameters already defined
-    // by the grid, you can do so too
-    accentColor: 'red',
+const pdsToggleButtonStyle = createPart({
+  feature: 'pdsToggleButtonStyle',
+  modeParams: {
+    [PdsThemeMode.LIGHT]: {
+      toggleButtonOnBackgroundColor: themeLightNotificationSuccess,
+      toggleButtonOffBackgroundColor: themeLightBackgroundBase,
+      toggleButtonSwitchBackgroundColor: themeLightPrimary,
+    },
+    [PdsThemeMode.DARK]: {
+      toggleButtonOnBackgroundColor: themeDarkNotificationSuccess,
+      toggleButtonOffBackgroundColor: themeDarkBackgroundBase,
+      toggleButtonSwitchBackgroundColor: themeDarkPrimary,
+    },
   },
-  // Add some CSS to this part.
-  // If your application is bundled with Vite you can put this in a separate
-  // file and import it with `import checkboxCSS "./checkbox.css?inline"`
-  cssImports: [''],
+  /* Using the checkbox border color CSS variable as a workaround because theme-specific selectors [data-ag-theme-mode="ag-theme-pds"] are not applying correctly due to being wrapped in a generated class. */
+  css: `
+     --pds-toggle-button-hover-color: color-mix(in srgb, var(--ag-toggle-button-on-background-color) 60%, black);
+
+    .ag-toggle-button-input-wrapper {
+      border: ${borderWidthBase} solid var(--ag-checkbox-unchecked-border-color);
+    }
+    .ag-toggle-button-input-wrapper.ag-checked {
+      border-color: var(--ag-toggle-button-on-background-color);
+    }
+    .ag-toggle-button-input-wrapper:hover {
+      border-color: var(--ag-checkbox-checked-background-color) !important;
+    }
+    .ag-toggle-button-input-wrapper.ag-checked:hover {
+      border-color: var(--pds-toggle-button-hover-color) !important;
+      background-color: var(--pds-toggle-button-hover-color) !important;
+    }
+
+    .ag-toggle-button-input-wrapper::before {
+      height: calc(var(--ag-toggle-button-height) - ${spacingStaticXSmall} * 2) !important;
+      width: calc(var(--ag-toggle-button-height) - ${spacingStaticXSmall} * 2) !important;
+      top: calc(${spacingStaticXSmall} - ${borderWidthBase}) !important;
+      left: calc(${spacingStaticXSmall} - ${borderWidthBase}) !important;
+    }
+    .ag-toggle-button-input-wrapper.ag-checked::before {
+      --ag-toggle-button-switch-background-color: ${themeLightBackgroundBase};
+      --ag-toggle-button-on-border-color: ${themeLightBackgroundBase};
+      left: calc(100% - var(--ag-toggle-button-height) + 6px) !important;
+    }
+  `,
+});
+
+/* This part extends (rather than replaces) the checkboxStyle feature of the Quartz theme to apply PDS-specific styling. */
+const pdsCheckboxStyle = createPart({
+  feature: 'pdsCheckboxStyle',
+  modeParams: {
+    [PdsThemeMode.LIGHT]: {
+      checkboxCheckedBackgroundColor: themeLightPrimary,
+      checkboxCheckedBorderColor: themeLightPrimary,
+      checkboxUncheckedBorderColor: themeLightContrastMedium,
+      checkboxIndeterminateBorderColor: themeLightContrastMedium,
+      checkboxIndeterminateBackgroundColor: themeLightBackgroundBase,
+      checkboxIndeterminateShapeColor: themeLightPrimary,
+    },
+    [PdsThemeMode.DARK]: {
+      checkboxCheckedBackgroundColor: themeDarkPrimary,
+      checkboxCheckedBorderColor: themeDarkPrimary,
+      checkboxUncheckedBorderColor: themeDarkContrastMedium,
+      checkboxIndeterminateBorderColor: themeDarkContrastMedium,
+      checkboxIndeterminateBackgroundColor: themeDarkBackgroundBase,
+      checkboxIndeterminateShapeColor: themeDarkPrimary,
+    },
+  },
+  /* Use color-mixing to approximate hover colors (themeDarkContrastHigh and themeLightContrastHigh) as a workaround since theme-specific selectors [data-ag-theme-mode="ag-theme-pds"] are not applying correctly due to being wrapped in a generated class. */
+  css: `
+    --pds-checkbox-hover-color: color-mix(in srgb, var(--ag-checkbox-checked-background-color) 60%, gray);
+
+   .ag-checkbox-input-wrapper:hover {
+      border-color: var(--ag-checkbox-checked-background-color) !important;
+    }
+
+   .ag-checkbox-input-wrapper.ag-checked:hover {
+     border-color: var(--pds-checkbox-hover-color) !important;
+     background-color: var(--pds-checkbox-hover-color) !important;
+   }
+  `,
 });
 
 // const pdsIconSetPart = createPart({ feature: 'iconSet' });
@@ -149,44 +223,10 @@ const pdsSvgIcons = iconOverrides({
   },
 });
 
-// Different icons for light/dark (All other icons are inverted with filter)
-// @ts-ignore
-const pdsLightThemeSvgIcons = iconOverrides({
-  type: 'image',
-  mask: true,
-  icons: {
-    'checkbox-checked': {
-      url: 'data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="%23FBFCFF" d="m20.22,7.47l-1.47-1.42-9.26,9.02-4.24-4.15-1.47,1.42,5.71,5.6,10.73-10.47Z"/></svg>',
-    },
-    'checkbox-indeterminate': {
-      url: 'data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="%23010205" d="m20,11v2H4v-2h16Z"/></svg>',
-    },
-    'radio-button-on': {
-      url: 'data:image/svg+xml;charset=UTF-8, <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle fill="%23FBFCFF" cx="12" cy="12" r="6"/></svg>',
-    },
-  },
-});
-
-// @ts-ignore
-const pdsDarkThemeSvgIcons = iconOverrides({
-  type: 'image',
-  mask: true,
-  icons: {
-    'checkbox-checked': {
-      url: 'data:image/svg+xml;charset=UTF-8, <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="%23010205" d="m20.22,7.47l-1.47-1.42-9.26,9.02-4.24-4.15-1.47,1.42,5.71,5.6,10.73-10.47Z"/></svg>',
-    },
-    'checkbox-indeterminate': {
-      url: 'data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="%23FBFCFF" d="m20,11v2H4v-2h16Z"/></svg>',
-    },
-    'radio-button-on': {
-      url: 'data:image/svg+xml;charset=UTF-8, <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle fill="%23010205" cx="12" cy="12" r="6"/></svg>',
-    },
-  },
-});
-
 export const pdsTheme: Theme = themeQuartz
   .withParams({
     checkboxBorderWidth: 2,
+    checkboxBorderRadius: borderRadiusSmall,
     focusShadow: 'none',
     inputFocusShadow: 'none',
     spacing: 10,
@@ -195,13 +235,14 @@ export const pdsTheme: Theme = themeQuartz
     iconSize: 24,
     borderRadius: borderRadiusSmall,
     wrapperBorderRadius: borderRadiusMedium,
-    checkboxBorderRadius: borderRadiusSmall,
     fontFamily: fontFamily,
     fontSize: fontSizeTextSmall,
+    headerFontWeight: fontWeightSemiBold,
+    headerFontSize: fontSizeTextXSmall,
     headerHeight: 16 + 10 * 2.9, // 'calc(var(--ag-font-size) + var(--ag-grid-size) * 2.9)',
     rowHeight: 16 + 10 * 4, // calc(var(--ag-font-size) + var(--ag-grid-size) * 4),
     checkboxCheckedShapeImage: {
-      svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m20.22,7.47l-1.47-1.42-9.26,9.02-4.24-4.15-1.47,1.42,5.71,5.6,10.73-10.47Z"/></svg>', //buildIconUrl('check'),
+      svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m20.22,7.47l-1.47-1.42-9.26,9.02-4.24-4.15-1.47,1.42,5.71,5.6,10.73-10.47Z"/></svg>',
     },
     checkboxIndeterminateShapeImage: {
       svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m20,11v2H4v-2h16Z"/></svg>',
@@ -228,22 +269,9 @@ export const pdsTheme: Theme = themeQuartz
       inputDisabledBorder: `1px solid ${themeDarkStateDisabled}`,
       inputDisabledBackgroundColor: themeDarkBackgroundBase,
       invalidColor: themeDarkNotificationError,
-      checkboxCheckedBackgroundColor: themeDarkPrimary,
-      checkboxCheckedBorderColor: themeDarkPrimary,
-      checkboxUncheckedBorderColor: themeDarkContrastMedium,
-      checkboxIndeterminateBorderColor: themeDarkContrastMedium,
-      checkboxIndeterminateBackgroundColor: themeDarkBackgroundBase,
-      checkboxIndeterminateShapeColor: themeDarkPrimary,
-      // toggle-button-border-width: 2px,
-      // toggle-button-on-border-color: $pds-theme-dark-notification-success,
-      // toggle-button-off-border-color: $pds-theme-dark-state-disabled,
-      // toggle-button-switch-border-color: transparent,
-      toggleButtonOnBackgroundColor: themeDarkNotificationSuccess,
-      toggleButtonOffBackgroundColor: themeDarkBackgroundBase,
-      toggleButtonSwitchBackgroundColor: themeDarkPrimary,
       inputFocusBorder: `1px solid ${themeDarkPrimary}`,
     },
-    'ag-theme-pds-dark'
+    PdsThemeMode.DARK
   )
   .withParams(
     {
@@ -265,22 +293,10 @@ export const pdsTheme: Theme = themeQuartz
       inputDisabledBorder: `1px solid ${themeLightStateDisabled}`,
       inputDisabledBackgroundColor: themeLightBackgroundBase,
       invalidColor: themeLightNotificationError,
-      checkboxCheckedBackgroundColor: themeLightPrimary,
-      checkboxCheckedBorderColor: themeLightPrimary,
-      checkboxUncheckedBorderColor: themeLightContrastMedium,
-      checkboxIndeterminateBorderColor: themeLightContrastMedium,
-      checkboxIndeterminateBackgroundColor: themeLightBackgroundBase,
-      checkboxIndeterminateShapeColor: themeLightPrimary,
-      // toggle-button-border-width: 2px,
-      // toggle-button-on-border-color: $pds-theme-dark-notification-success,
-      // toggle-button-off-border-color: $pds-theme-dark-state-disabled,
-      // toggle-button-switch-border-color: transparent,
-      toggleButtonOnBackgroundColor: themeLightNotificationSuccess,
-      toggleButtonOffBackgroundColor: themeLightBackgroundBase,
-      toggleButtonSwitchBackgroundColor: themeLightPrimary,
       inputFocusBorder: `1px solid ${themeLightPrimary}`,
     },
-    'ag-theme-pds'
+    PdsThemeMode.LIGHT
   )
   .withPart(pdsSvgIcons)
-  .withPart(myCheckboxStyle);
+  .withPart(pdsToggleButtonStyle)
+  .withPart(pdsCheckboxStyle);
