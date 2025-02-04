@@ -1,9 +1,24 @@
+import commonjs from '@rollup/plugin-commonjs';
+import replace from '@rollup/plugin-replace';
 import typescript from '@rollup/plugin-typescript';
 import copy from 'rollup-plugin-copy';
 import generatePackageJson from 'rollup-plugin-generate-package-json';
 
 const input = 'src/js/theme.ts';
 const outputDir = 'dist';
+
+const isDevBuild = process.env.PDS_IS_STAGING === '1';
+
+const sharedPlugins = [
+  replace({
+    preventAssignment: true,
+    ROLLUP_REPLACE_CDN_BASE_URL: isDevBuild
+      ? '"http://localhost:3001"'
+      : 'global.PORSCHE_DESIGN_SYSTEM_CDN_URL + "/porsche-design-system"', // global (not window!) because this is used during SSR on server side in nodejs
+    'process.env.NODE_ENV': '"production"',
+  }),
+  commonjs(),
+];
 
 export default [
   // Default JS Build - CJS
@@ -15,7 +30,7 @@ export default [
       entryFileNames: '[name].cjs',
       preserveModules: true,
     },
-    plugins: [typescript()],
+    plugins: [...sharedPlugins, typescript()],
   },
   // Default JS Build - ESM
   {
@@ -27,6 +42,7 @@ export default [
       preserveModules: true,
     },
     plugins: [
+      ...sharedPlugins,
       typescript({
         declaration: true,
         declarationDir: `${outputDir}/esm`,

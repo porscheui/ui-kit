@@ -18,7 +18,8 @@
     "ag-grid-community": "33.0.4"
   },
   "peerDependencies": {
-    "sass": "*"
+    "sass": "*",
+    "typescript": "*"
   },
   "volta": {
     "extends": "../../package.json"
