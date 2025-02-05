@@ -47,7 +47,7 @@ export default [
         declaration: true,
         declarationDir: `${outputDir}/esm`,
         exclude: '**.spec.ts',
-        rootDir: 'src/js',
+        rootDir: 'src',
       }),
       copy({
         targets: [{ src: ['src/scss/**/*.scss', 'src/_index.scss'], dest: outputDir }],

@@ -1,6 +1,6 @@
 import { ICONS_MANIFEST } from '@porsche-design-system/assets';
 import type { IconName } from '@porsche-design-system/icons';
-import { getCDNBaseURL } from './getCDNBaseURL';
+import { getCDNBaseURL } from './get-cdn-base-url';
 
 export const isUrl = (str: string): boolean => str?.length > 0 && /(\/)/.test(str);
 
