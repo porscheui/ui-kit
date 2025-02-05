@@ -1,0 +1,8 @@
+.ag-checkbox-input-wrapper:hover {
+  border-color: red !important;
+}
+
+.ag-checkbox-input-wrapper.ag-checked:hover {
+  border-color: green !important;
+  background-color: blue !important;
+}
