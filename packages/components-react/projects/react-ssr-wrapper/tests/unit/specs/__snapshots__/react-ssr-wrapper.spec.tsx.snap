@@ -13683,7 +13683,6 @@ exports[`should render dsr component for PPopover 1`] = `
       :host {
   display: inline-block;
   vertical-align: top;
-  position: relative !important;
   color-scheme: light dark !important;
 }
 :host([hidden]) {
@@ -13730,35 +13729,41 @@ button::-moz-focus-inner {
 .icon {
   transform: translate3d(0,0,0);
 }
-.spacer {
-  inset: -16px;
-  position: absolute;
-  z-index: 9999;
-  filter: drop-shadow(0 0 16px rgba(0,0,0,0.3));
-  pointer-events: none;
-  animation: var(--p-animation-duration, 0.25s) keyframes-fadeIn cubic-bezier(0.25,0.1,0.25,1) forwards;
-}
-.spacer::before {
-  content: "";
-  position: absolute;
-  border-style: solid;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  border-width: 0 12px 12px;
-  border-color: transparent transparent #FFF;
-}
 .popover {
   position: absolute;
+  border: none;
+  background: none;
+  pointer-events: none;
+  padding: 0;
+  margin: 0;
+  overflow: initial;
+  flex-direction: column;
+  inset: 0;
+  width: max-content;
+  filter: drop-shadow(0 0 16px rgba(0,0,0,0.3));
+  animation: var(--p-animation-duration, 0.25s) keyframes-fadeIn cubic-bezier(0.25,0.1,0.25,1) forwards;
+}
+.popover:-internal-popover-in-top-layer::backdrop {
+  display: none;
+}
+.popover[popover]:is(:popover-open) {
+  display: flex;
+}
+.arrow {
+  align-self: center;
+  width: 24px;
+  height: 12px;
+  clip-path: polygon(50% 0, 100% 110%, 0 110%);
+  background: #FFF;
+}
+.content {
   max-width: min(90vw, 27rem);
   width: max-content;
+  height: max-content;
   box-sizing: border-box;
   background: #FFF;
   padding: 8px 16px;
   pointer-events: auto;
-  top: 100%;
-  left: 50%;
-  transform: translate3d(-50%, 0, 0);
   font: normal normal 400 1rem/calc(6px + 2.125ex) 'Porsche Next','Arial Narrow',Arial,'Heiti SC',SimHei,sans-serif;
   overflow-wrap: break-word;
   hyphens: auto;
@@ -13777,6 +13782,7 @@ button::-moz-focus-inner {
 }
     </style>
     <button
+      popovertarget="popover"
       type="button"
     >
       <p-icon
@@ -13831,6 +13837,20 @@ img {
         More information
       </span>
     </button>
+    <div
+      class="popover"
+      id="popover"
+      popover="auto"
+    >
+      <div
+        class="arrow"
+      />
+      <div
+        class="content"
+      >
+        <slot />
+      </div>
+    </div>
   </template>
   Some child
 </p-popover>
